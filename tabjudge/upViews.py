@@ -90,7 +90,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         self.event = Event()
 
         #rList sessionID set
-        self.rList.append('Start Time = ' + self.st.strftime('%Y/%m/%d %H:%M:%S.%f') + '\n')
+        self.rList.append('Start Time = ' + self.st.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3] + '\n')
 
         #create session id
         if not request.session.session_key:
@@ -122,10 +122,10 @@ class ImageViewSet(viewsets.ModelViewSet):
         #h, m, s = self.get_h_m_s(execution_time)
         #ms = execution_time.microseconds / 1000
         self.ed = datetime.datetime.today()
-        self.rList.append('End Time = ' + self.ed.strftime('%Y/%m/%d %H:%M:%S.%f') + '\n')
+        self.rList.append('End Time = ' + self.ed.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3] + '\n')
 
         execution_time = self.ed - self.st
-        self.rList.append('\nTime Span (時:分:秒.ミリ秒) = ' + str(execution_time))
+        self.rList.append('\nTime Span (時:分:秒.ミリ秒) = ' + str(execution_time)[:-3])
 
         print('param = {', '\n'.join(self.rList) , '}')
         #params = {"message":'\n'.join(self.rList)}
@@ -204,7 +204,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         # print('StampImage:',StampImage.shape)
         # print('PrintImage:',PrintImage)
 
-        ret = '\n1錠の鑑別結果コールバック\n日時 = '+datetime.datetime.today().strftime('%Y/%m/%d %H:%M:%S.%f') +'\nDrugPoint:'+str(DrugPoint)+'\nArea:'+str(Area)+ '\nCandidateList:'+str(CandidateList)+ '\nCropImage:'+str(CropImage.shape)+ '\nStampImage:'+str(StampImage.shape)+'\nPrintImage:'+str(PrintImage)
+        ret = '\n1錠の鑑別結果コールバック\n日時 = '+datetime.datetime.today().strftime('%Y/%m/%d %H:%M:%S.%f')[:-3] +'\nDrugPoint:'+str(DrugPoint)+'\nArea:'+str(Area)+ '\nCandidateList:'+str(CandidateList)+ '\nCropImage:'+str(CropImage.shape)+ '\nStampImage:'+str(StampImage.shape)+'\nPrintImage:'+str(PrintImage)
         self.rList.append(ret)
 
     #コールバックさせる関数：全ての鑑別が終わった際に呼ぶ関数
@@ -217,7 +217,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         '''
 
         # print('★全ての鑑別が終わりました★')
-        self.rList.append('★全ての鑑別が終わりました★\n日時 = '+datetime.datetime.today().strftime('%Y/%m/%d %H:%M:%S.%f'))
+        self.rList.append('★全ての鑑別が終わりました★\n日時 = '+datetime.datetime.today().strftime('%Y/%m/%d %H:%M:%S.%f')[:-3])
         self.CompleteIdentifier(self.sessionId)
         
         print('Event set()')
