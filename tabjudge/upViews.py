@@ -183,7 +183,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         # print('StampImage:',StampImage.shape)
         # print('PrintImage:',PrintImage)
 
-        ret = '1錠の鑑別結果コールバック'+'\nDrugPoint:'+str(DrugPoint)+'\nArea:'+str(Area)+ '\nCandidateList:'+str(CandidateList)+ '\nCropImage:'+str(CropImage.shape)+ '\nStampImage:'+str(StampImage.shape)+'\nPrintImage:'+str(PrintImage)
+        ret = '\n1錠の鑑別結果コールバック Time ='+str(datetime.datetime.today()) +'\nDrugPoint:'+str(DrugPoint)+'\nArea:'+str(Area)+ '\nCandidateList:'+str(CandidateList)+ '\nCropImage:'+str(CropImage.shape)+ '\nStampImage:'+str(StampImage.shape)+'\nPrintImage:'+str(PrintImage)
         self.rList.append(ret)
 
     #コールバックさせる関数：全ての鑑別が終わった際に呼ぶ関数
