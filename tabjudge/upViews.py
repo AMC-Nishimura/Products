@@ -90,7 +90,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         self.event = Event()
 
         #rList sessionID set
-        self.rList.append('Start Time = ' + str(self.st) + '\n')
+        self.rList.append('Start Time = ' + self.st.strftime('%Y/%m/%d %H:%M:%S.%f') + '\n')
 
         #create session id
         if not request.session.session_key:
@@ -113,18 +113,34 @@ class ImageViewSet(viewsets.ModelViewSet):
         print("identifier end")
         
         #execution time
-        execution_time = time.perf_counter() - start_time
-        self.rList.append('\nExecution Time = ' + str(execution_time))
+        #execution_time = time.perf_counter() - start_time
+        
+        # self.rList.append('\nTime Span (分:秒.ミリ秒) = ' + datetime.datetime.fromtimestamp(execution_time ).strftime('%M:%S.%f'))
+        
+        #print(execution_time)
+        
+        #h, m, s = self.get_h_m_s(execution_time)
+        #ms = execution_time.microseconds / 1000
+        self.ed = datetime.datetime.today()
+        self.rList.append('End Time = ' + self.ed.strftime('%Y/%m/%d %H:%M:%S.%f') + '\n')
+
+        execution_time = self.ed - self.st
+        self.rList.append('\nTime Span (時:分:秒.ミリ秒) = ' + str(execution_time))
 
         print('param = {', '\n'.join(self.rList) , '}')
-
         #params = {"message":'\n'.join(self.rList)}
-
         print("render")
         
-        msg = ('result'+'param = {', '\n'.join(self.rList) , '}')
+        #msg = ('result'+'param = {', '\n'.join(self.rList) , '}')
+        msg = ('\n'.join(self.rList) )
         return Response({'message': msg})
         #return Response({'message': 'OK'})
+
+
+    def get_h_m_s(td):
+        m, s = divmod(td.seconds, 60)
+        h, m = divmod(m, 60)
+        return h, m, s
 
 
         #central.py do identifier
@@ -139,6 +155,11 @@ class ImageViewSet(viewsets.ModelViewSet):
         print("cv2 imdecode start")
         try:
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+            #pt = os.path.join(os.path.join(BASE_DIR, UPLOAD_DIR),'IMG_4869.JPG')
+            # print('img path = ', pt)
+            # img = cv2.imread(pt)
+            
 
             print("sessionId = ", sessionId)
             app.Manager.Identifier(sessionId,
@@ -183,7 +204,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         # print('StampImage:',StampImage.shape)
         # print('PrintImage:',PrintImage)
 
-        ret = '\n1錠の鑑別結果コールバック Time ='+str(datetime.datetime.today()) +'\nDrugPoint:'+str(DrugPoint)+'\nArea:'+str(Area)+ '\nCandidateList:'+str(CandidateList)+ '\nCropImage:'+str(CropImage.shape)+ '\nStampImage:'+str(StampImage.shape)+'\nPrintImage:'+str(PrintImage)
+        ret = '\n1錠の鑑別結果コールバック\n日時 = '+datetime.datetime.today().strftime('%Y/%m/%d %H:%M:%S.%f') +'\nDrugPoint:'+str(DrugPoint)+'\nArea:'+str(Area)+ '\nCandidateList:'+str(CandidateList)+ '\nCropImage:'+str(CropImage.shape)+ '\nStampImage:'+str(StampImage.shape)+'\nPrintImage:'+str(PrintImage)
         self.rList.append(ret)
 
     #コールバックさせる関数：全ての鑑別が終わった際に呼ぶ関数
@@ -196,8 +217,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         '''
 
         # print('★全ての鑑別が終わりました★')
-        self.rList.append('★全ての鑑別が終わりました★')
-        
+        self.rList.append('★全ての鑑別が終わりました★\n日時 = '+datetime.datetime.today().strftime('%Y/%m/%d %H:%M:%S.%f'))
         self.CompleteIdentifier(self.sessionId)
         
         print('Event set()')
