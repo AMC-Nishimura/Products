@@ -42,6 +42,7 @@ class Central():
 
             mask = MainJudgeModule.DetectDrugRegion(ImgInput)
             contours = MainJudgeModule.SplitDrugRegion(mask)
+            print('contours = ',contours)
 
             for contour in contours:
                 emboss = MainJudgeModule.ExtractEmboss(ImgInput,contour)

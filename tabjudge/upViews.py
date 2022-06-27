@@ -27,6 +27,8 @@ class ImageViewSet(viewsets.ModelViewSet):
     rList = []
     sessionId = ''
 
+
+    # カスタムエンドポイントを作成する場合は@actionを使用
     #@action(detail=true, methods=)
     def create(self, request):
         
@@ -40,7 +42,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         #first step   
         file_data = file.read()
         		
-        print('file_data[0] = ', file_data[0])
+        #print('file_data[0] = ', file_data[0])
         #print('file_data[1] = ', file_data[1])
         #print('file_data[2] = ', file_data[2])
         #print('file_data[3] = ', file_data[3])
@@ -133,8 +135,21 @@ class ImageViewSet(viewsets.ModelViewSet):
         
         #msg = ('result'+'param = {', '\n'.join(self.rList) , '}')
         msg = ('\n'.join(self.rList) )
+        
         return Response({'message': msg})
         #return Response({'message': 'OK'})
+
+    def retrieve(self, request, *args, **kwargs):
+        
+        
+        
+        return Response({
+            
+            
+            
+            
+        })
+
 
 
     def get_h_m_s(td):
