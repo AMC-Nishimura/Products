@@ -1,8 +1,8 @@
-import threading
-import cv2
 from .Process import Process
 import configparser
 import numpy as np
+import time
+from PIL import Image
 
 class Central():
 
@@ -16,10 +16,13 @@ class Central():
     　インスタンスそのものを戻り値として返す。
     '''
     def Initialize(self,SettingIniPath):
+        #imgproc.ReadMaster()
         param_ini = configparser.ConfigParser()
         param_ini.read(SettingIniPath,encoding='utf-8')
         ret = Process(param_ini['PARAM']['SEG_MODEL_PATH'],
-                      param_ini['PARAM']['MASTER_PATH'])
+                      param_ini['PARAM']['MASTER_PATH'],
+                      param_ini['PARAM']['SETTING_CPP_PATH'])
+        
         return ret
 
     '''
@@ -32,42 +35,33 @@ class Central():
                    ImgInput,
                    cbSendResult,
                    cbSendCompleted):
-        if True:
-            #① 入力画像から薬品部分の領域を取得
-            #② for 領域 in 検出した領域群:
-            #    ③ 刻印の抽出
-            #    ④ マスタとのマッチング（内部はマルチスレッド）
-            #    ⑤ 1錠の鑑別結果返却コールバック関数を呼び出し
-            #⑥ 1枚画像の鑑別が完了したことを通知するコールバック関数を呼び出し
+        # [GET_TAB_REGION]
+        # Make Image bufffer fot C++
+        tInitGetTab = time.time()
+        IdnetifierObj = MainJudgeModule.GetTabRegion(ImgInput)
+        print('[GetTabRegion] ' + str(IdnetifierObj.DrugCount) + ' object(s)')
+        print('[GetTabRegion] ' + str(time.time() - tInitGetTab) + ' [s]')
 
-            mask = MainJudgeModule.DetectDrugRegion(ImgInput)
-            contours = MainJudgeModule.SplitDrugRegion(mask)
-            print('contours = ',contours)
-
-            for contour in contours:
-                emboss = MainJudgeModule.ExtractEmboss(ImgInput,contour)
-                results = MainJudgeModule.Matching(emboss)
-
-                DrugPoint = np.array([150,450])
-                Area = 6400
-                CandidateList = ['A','B','C']
-                CropImage = ImgInput[0:32,0:32,:]
-                StampImage = np.zeros([32,32])
-                PrintImage = None
-
-                cbSendResult(
-                    DrugPoint,
-                    Area,
-                    CandidateList,
-                    CropImage,
-                    StampImage,
-                    PrintImage)
-            cbSendCompleted()
-            
-            return 0
-        #except:
-        #    print('落ちました')
-        #    return -1
+        # [IDENTIFIER]
+        # for i in range(IdnetifierObj.DrugCount):
+        for i in range(IdnetifierObj.DrugCount):
+            result = MainJudgeModule.Identifier_Proc(i, IdnetifierObj)
+            contoursX = result.ContoursX
+            contoursY = result.ContoursY
+            CandidateList = result.ScoreList
+    
+            array_gbr = result.CropppedDrugImage.copy()
+            array_rgb = result.CropppedDrugImage.copy()
+            array_rgb[:, :, 0], array_rgb[:, :, 2] = array_gbr[:, :, 2], array_gbr[:, :, 0]
+            CropImage = Image.fromarray(array_rgb)
+    
+            drogpoints = [[x,y] for x,y in zip(contoursX, contoursY)]
+            Contours = np.array(drogpoints)
+            cbSendResult(Contours, CandidateList, CropImage)
+            del result
+        cbSendCompleted()
+        del IdnetifierObj
+        return 0
 
     def Cancel(self):
         pass

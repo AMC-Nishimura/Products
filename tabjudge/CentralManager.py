@@ -1,17 +1,12 @@
 from .Central import Central
 import os
-from os.path import abspath, join, dirname
 
 class CentralManager():
     CentralDictionary = {}
     
     def __init__(self):
         iniCen = Central()
-        #add alpha
-        iniPath = abspath( join(dirname(__file__),'setting.ini') )
-        print(iniPath)
-        #self.DrugInfModule = iniCen.Initialize('./setting.ini')
-        self.DrugInfModule = iniCen.Initialize(iniPath)
+        self.DrugInfModule = iniCen.Initialize('./setting.ini')
 
     def Identifier(self,
                     SessionId,
@@ -25,6 +20,8 @@ class CentralManager():
                                                     ImgInput,
                                                     cbSendResult,
                                                     cbSendCompleted)
+        del cen
+        #del self.CentralDictionary[SessionId]
     
     def Complete(self,
                 SessionId):

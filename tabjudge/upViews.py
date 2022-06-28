@@ -198,29 +198,31 @@ class ImageViewSet(viewsets.ModelViewSet):
 
         #コールバックさせる関数：結果セット関数
     def CallBackSendResult(self,
-                            DrugPoint,
-                            Area,
+                            Contours,
                             CandidateList,
-                            CropImage,
-                            StampImage,
-                            PrintImage):
+                            CropImage):
 
         '''
         ここに鑑別結果を送信する処理を実装。
         今は仮でprintだけしておきます。
         '''
-        print("CallBackSendResult Called")	
-
-        # print('1錠の鑑別結果コールバック')
-        # print('DrugPoint:',DrugPoint)
-        # print('Area:',Area)
-        # print('CandidateList:',CandidateList)
-        # print('CropImage:',CropImage.shape)
-        # print('StampImage:',StampImage.shape)
-        # print('PrintImage:',PrintImage)
-
-        ret = '\n1錠の鑑別結果コールバック\n日時 = '+datetime.datetime.today().strftime('%Y/%m/%d %H:%M:%S.%f')[:-3] +'\nDrugPoint:'+str(DrugPoint)+'\nArea:'+str(Area)+ '\nCandidateList:'+str(CandidateList)+ '\nCropImage:'+str(CropImage.shape)+ '\nStampImage:'+str(StampImage.shape)+'\nPrintImage:'+str(PrintImage)
-        self.rList.append(ret)
+        self.rList.append('1錠の鑑別結果コールバック')
+        self.rList.append('日時 = '+datetime.datetime.today().strftime('%Y/%m/%d %H:%M:%S.%f')[:-3]) 
+        self.rList.append('Contours:'+str(Contours.shape))
+        self.rList.append('CropImage:'+str(CropImage.size))
+        listcount = len(CandidateList)
+        for i in range(listcount):
+            if(i >= 5):break
+            ret = 'YJCode:'+str(CandidateList[i].YJCODE)
+            ret += ',DNCode:'+str(CandidateList[i].FCODE)
+            ret += ',SCORE:'+str(CandidateList[i].SCORE)
+            self.rList.append(ret)
+        #ret = '1錠の鑑別結果コールバック'+'\nContours:'+str(Contours.shape)+ '\nCandidateList:'+str(CandidateList)+ '\nCropImage:'+str(CropImage.size)
+        #Dispose object
+        del(Contours)
+        del(CandidateList)
+        del(CropImage)
+        
 
     #コールバックさせる関数：全ての鑑別が終わった際に呼ぶ関数
     def CallBackSendCompleted(self):
@@ -232,7 +234,9 @@ class ImageViewSet(viewsets.ModelViewSet):
         '''
 
         # print('★全ての鑑別が終わりました★')
-        self.rList.append('★全ての鑑別が終わりました★\n日時 = '+datetime.datetime.today().strftime('%Y/%m/%d %H:%M:%S.%f')[:-3])
+        self.rList.append('★全ての鑑別が終わりました(Rev:82)★')
+        self.rList.append('日時 = '+datetime.datetime.today().strftime('%Y/%m/%d %H:%M:%S.%f')[:-3]) 
+
         self.CompleteIdentifier(self.sessionId)
         
         print('Event set()')

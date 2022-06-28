@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Setting_cpp xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <!-- Master -->
+  <MasterPath>MDBankData.xml</MasterPath>
+  
+  <!-- REGION_PARAM -->
+  <drect_size>2300</drect_size>
+  <dtrim_size>150</dtrim_size>
+  
+  <!-- ANALYZE_AREA_PARAM -->
+  <dResizeRate>0.6</dResizeRate>
+  <nMinContourArea>3000</nMinContourArea>
+  <dMMPerPixel>0.0547</dMMPerPixel>
+  <dLocalMMPerPixel>0.1094</dLocalMMPerPixel>
+  <nBilateralParam1>3</nBilateralParam1>
+  <nBilateralParam2>5</nBilateralParam2>
+  <nCapsuleBilateralParam1>7</nCapsuleBilateralParam1>
+  <nCapsuleBilateralParam2>11</nCapsuleBilateralParam2>
+  <nBlackhatParam1>3</nBlackhatParam1>
+  <nBlackhatParam2>7</nBlackhatParam2>
+  <nBlackhatParam3>11</nBlackhatParam3>
+  <dErodeRate>0.25</dErodeRate>
+  <nGradientParam1>3</nGradientParam1>
+  <nGradientParam2>7</nGradientParam2>
+  <nPrintBlackhatParam>11</nPrintBlackhatParam>
+  <nPrintTophatParam>11</nPrintTophatParam>
+  <nCheckStampThreshold>20</nCheckStampThreshold>
+  <nCheckStampMinSize>40</nCheckStampMinSize>
+  <nCheckPrintThreshold>20</nCheckPrintThreshold>
+  <nCheckPrintMinSize>40</nCheckPrintMinSize>
+  <nCheckCapsulePrintThreshold>20</nCheckCapsulePrintThreshold>
+  <nCheckCapsulePrintMinSize>40</nCheckCapsulePrintMinSize>
+  <nStampGaussianParam>5</nStampGaussianParam>
+  <nMaxPartsCount>100</nMaxPartsCount>
+  <dCheckCircleMinCircleLevel>0.65</dCheckCircleMinCircleLevel>
+  <dCheckCircleAspectRatio>1.1</dCheckCircleAspectRatio>
+  <nCheckCircleSmoothParam>7</nCheckCircleSmoothParam>
+  <dStampPrintStrengthRate>0.6</dStampPrintStrengthRate>
+  
+  <!-- MATCHING_PARAM -->
+  <dInferThreshold_1>0.3</dInferThreshold_1>
+  <dInferThreshold_2>0.7</dInferThreshold_2>
+</Setting_cpp>
