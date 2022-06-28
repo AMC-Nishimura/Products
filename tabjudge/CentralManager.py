@@ -1,12 +1,13 @@
 from .Central import Central
 import os
+from Products.settings import BASE_DIR
 
 class CentralManager():
     CentralDictionary = {}
     
     def __init__(self):
         iniCen = Central()
-        self.DrugInfModule = iniCen.Initialize('./setting.ini')
+        self.DrugInfModule = iniCen.Initialize(os.path.join(BASE_DIR, './setting.ini'))
 
     def Identifier(self,
                     SessionId,
