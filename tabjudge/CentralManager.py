@@ -12,14 +12,16 @@ class CentralManager():
                     SessionId,
                     ImgInput,
                     cbSendResult,
-                    cbSendCompleted):
+                    cbSendCompleted,
+                    cbLogWrite):
 
         cen = Central()
         self.CentralDictionary[SessionId] = cen
         self.CentralDictionary[SessionId].Identifier(self.DrugInfModule,
                                                     ImgInput,
                                                     cbSendResult,
-                                                    cbSendCompleted)
+                                                    cbSendCompleted,
+                                                    cbLogWrite)
         del cen
         #del self.CentralDictionary[SessionId]
     

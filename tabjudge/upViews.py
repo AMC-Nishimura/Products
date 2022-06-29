@@ -18,6 +18,8 @@ from os.path import abspath, join, dirname
 from django.apps import apps as django_apps
 from Products.settings import BASE_DIR
 
+import threading
+
 UPLOAD_DIR = 'static/uploaded_photo/'
 
 class ImageViewSet(viewsets.ModelViewSet):
@@ -27,6 +29,7 @@ class ImageViewSet(viewsets.ModelViewSet):
     rList = []
     sessionId = ''
 
+    lock = threading.Lock()
 
     # カスタムエンドポイントを作成する場合は@actionを使用
     #@action(detail=true, methods=)
@@ -115,14 +118,6 @@ class ImageViewSet(viewsets.ModelViewSet):
         print("identifier end")
         
         #execution time
-        #execution_time = time.perf_counter() - start_time
-        
-        # self.rList.append('\nTime Span (分:秒.ミリ秒) = ' + datetime.datetime.fromtimestamp(execution_time ).strftime('%M:%S.%f'))
-        
-        #print(execution_time)
-        
-        #h, m, s = self.get_h_m_s(execution_time)
-        #ms = execution_time.microseconds / 1000
         self.ed = datetime.datetime.today()
         self.rList.append('End Time = ' + self.ed.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3] + '\n')
 
@@ -130,14 +125,11 @@ class ImageViewSet(viewsets.ModelViewSet):
         self.rList.append('\nTime Span (時:分:秒.ミリ秒) = ' + str(execution_time)[:-3])
 
         print('param = {', '\n'.join(self.rList) , '}')
-        #params = {"message":'\n'.join(self.rList)}
         print("render")
         
-        #msg = ('result'+'param = {', '\n'.join(self.rList) , '}')
         msg = ('\n'.join(self.rList) )
         
         return Response({'message': msg})
-        #return Response({'message': 'OK'})
 
     def retrieve(self, request, *args, **kwargs):
         
@@ -196,6 +188,8 @@ class ImageViewSet(viewsets.ModelViewSet):
         print("completeIdentifier finish")
 
 
+
+
         #コールバックさせる関数：結果セット関数
     def CallBackSendResult(self,
                             Contours,
@@ -206,6 +200,8 @@ class ImageViewSet(viewsets.ModelViewSet):
         ここに鑑別結果を送信する処理を実装。
         今は仮でprintだけしておきます。
         '''
+        self.lock.acquire()
+        
         self.rList.append('1錠の鑑別結果コールバック')
         self.rList.append('日時 = '+datetime.datetime.today().strftime('%Y/%m/%d %H:%M:%S.%f')[:-3]) 
         self.rList.append('Contours:'+str(Contours.shape))
@@ -217,12 +213,22 @@ class ImageViewSet(viewsets.ModelViewSet):
             ret += ',DNCode:'+str(CandidateList[i].FCODE)
             ret += ',SCORE:'+str(CandidateList[i].SCORE)
             self.rList.append(ret)
+
+        self.rList.append('\n')
+
+        self.lock.release()
         #ret = '1錠の鑑別結果コールバック'+'\nContours:'+str(Contours.shape)+ '\nCandidateList:'+str(CandidateList)+ '\nCropImage:'+str(CropImage.size)
         #Dispose object
         del(Contours)
         del(CandidateList)
         del(CropImage)
         
+    #コールバックさせる関数：ログ出力時に呼ぶ関数
+    def LogWrite(self,strLog):
+        self.lock.acquire()
+        self.rList.append(str(datetime.datetime.today()) + ' @ ' + strLog)
+        self.rList.append('\n')
+        self.lock.release()
 
     #コールバックさせる関数：全ての鑑別が終わった際に呼ぶ関数
     def CallBackSendCompleted(self):
@@ -232,10 +238,13 @@ class ImageViewSet(viewsets.ModelViewSet):
         全ての鑑別が完了した際に行う処理を実装。
         今は仮でメッセージだけprintしておきます。
         '''
-
+        self.lock.acquire()
         # print('★全ての鑑別が終わりました★')
         self.rList.append('★全ての鑑別が終わりました(Rev:82)★')
         self.rList.append('日時 = '+datetime.datetime.today().strftime('%Y/%m/%d %H:%M:%S.%f')[:-3]) 
+        self.rList.append('\n')
+        
+        self.lock.release()
 
         self.CompleteIdentifier(self.sessionId)
         

@@ -34,18 +34,28 @@ class Central():
                    MainJudgeModule,
                    ImgInput,
                    cbSendResult,
-                   cbSendCompleted):
+                   cbSendCompleted,
+                   cbLogWrite):
+        cbLogWrite('[Identifier] start')
         # [GET_TAB_REGION]
         # Make Image bufffer fot C++
-        tInitGetTab = time.time()
+
+
+        cbLogWrite('[Identifier]-[GetTabRegion] start')
+        tGetTab = time.time()
         IdnetifierObj = MainJudgeModule.GetTabRegion(ImgInput)
-        print('[GetTabRegion] ' + str(IdnetifierObj.DrugCount) + ' object(s)')
-        print('[GetTabRegion] ' + str(time.time() - tInitGetTab) + ' [s]')
+        cbLogWrite('[Identifier]-[GetTabRegion] end')
+        cbLogWrite('[Identifier]-[GetTabRegion] ' + str(IdnetifierObj.DrugCount) + ' object(s)')
+        cbLogWrite('[Identifier]-[GetTabRegion] ' + str(time.time() - tGetTab) + ' [s]')
 
         # [IDENTIFIER]
         # for i in range(IdnetifierObj.DrugCount):
+        cbLogWrite('[Identifier]-[Identifier_Proc] Identifier loop start')
         for i in range(IdnetifierObj.DrugCount):
+            cbLogWrite('[Identifier]-[Identifier_Proc] Identifier start ' + str(i))
+            tIdent = time.time()
             result = MainJudgeModule.Identifier_Proc(i, IdnetifierObj)
+            
             contoursX = result.ContoursX
             contoursY = result.ContoursY
             CandidateList = result.ScoreList
@@ -57,6 +67,8 @@ class Central():
     
             drogpoints = [[x,y] for x,y in zip(contoursX, contoursY)]
             Contours = np.array(drogpoints)
+            cbLogWrite('[Identifier]-[Identifier_Proc] Identifier end ' + str(i))
+            cbLogWrite('[Identifier]-[Identifier_Proc] ' + str(time.time() - tIdent) + ' [s]')
             cbSendResult(Contours, CandidateList, CropImage)
             del result
         cbSendCompleted()
