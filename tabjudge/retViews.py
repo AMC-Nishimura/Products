@@ -237,7 +237,7 @@ class UploadViewSet(viewsets.ModelViewSet):
         for i in range(listcount):
             cd = Candidate(CandidateList[i].YJCODE,
                            CandidateList[i].FCODE,
-                           str(CandidateList[i].NAME) + "dummy drug name" + str(i),
+                           str(CandidateList[i].NAME),
                            CandidateList[i].SCORE)
             candiList.append(cd)
         
