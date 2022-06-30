@@ -49,17 +49,20 @@ class UploadViewSet(viewsets.ModelViewSet):
     def create(self, request):
         
         #add starttime
-        start_time = time.perf_counter()
+
+        print("request")
         self.st = datetime.datetime.today()
         
         file = request.FILES['file']
         
         self.recvTabDatas = []
         
+        print("file read")
         #first step
         file_data = file.read()
-
+        print("filedata to numpy array")
         nparr = np.fromstring(file_data, np.uint8)
+        print("filedata to numpy array complete")
 
         # path = os.path.join(os.path.join(BASE_DIR, UPLOAD_DIR), file.name)
 
@@ -173,7 +176,6 @@ class UploadViewSet(viewsets.ModelViewSet):
         print("cv2 imdecode start")
         try:
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            print("sessionId = ", sessionId)
             app.Manager.Identifier(sessionId,
                                     img,
                                     self.CallBackSendResult,
