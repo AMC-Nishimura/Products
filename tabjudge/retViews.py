@@ -51,12 +51,12 @@ class UploadViewSet(viewsets.ModelViewSet):
         #add starttime
 
         print("request")
+        print("start time set")
         self.st = datetime.datetime.today()
-        
+        print("get file from request param")
         file = request.FILES['file']
-        
+        print("recvTabData initialize")
         self.recvTabDatas = []
-        
         print("file read")
         #first step
         file_data = file.read()
