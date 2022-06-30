@@ -53,8 +53,10 @@ class UploadViewSet(viewsets.ModelViewSet):
         self.st = datetime.datetime.today()
         
         file = request.FILES['file']
-        print('file dump = ', vars(file))
+        #print('file dump = ', vars(file))
 
+        self.recvTabDatas = []
+        
         #first step
         file_data = file.read()
 
