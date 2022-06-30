@@ -53,8 +53,7 @@ class UploadViewSet(viewsets.ModelViewSet):
         self.st = datetime.datetime.today()
         
         file = request.FILES['file']
-        #print('file dump = ', vars(file))
-
+        
         self.recvTabDatas = []
         
         #first step
@@ -62,17 +61,16 @@ class UploadViewSet(viewsets.ModelViewSet):
 
         nparr = np.fromstring(file_data, np.uint8)
 
-        path = os.path.join(os.path.join(BASE_DIR, UPLOAD_DIR), file.name)
+        # path = os.path.join(os.path.join(BASE_DIR, UPLOAD_DIR), file.name)
 
+        # destination = open(path, 'wb')
+        # for chunk in file.chunks():
+        #     destination.write(chunk)
+        # destination.close()
 
-        destination = open(path, 'wb')
-        for chunk in file.chunks():
-            destination.write(chunk)
-        destination.close()
-
-        if not os.path.exists(path):
-            print('File not found:', path)
-            return create_render(request)
+        # if not os.path.exists(path):
+        #     print('File not found:', path)
+        #     return create_render(request)
         
         self.rList = []
         self.event = Event()
@@ -215,6 +213,7 @@ class UploadViewSet(viewsets.ModelViewSet):
         self.rList.append('Contours:'+str(Contours.shape))
         self.rList.append('CropImage:'+str(CropImage.size))
         listcount = len(CandidateList)
+        print('listCount =', listcount)
         for i in range(listcount):
             if(i >= 5):break
             ret = 'YJCode:'+str(CandidateList[i].YJCODE)
