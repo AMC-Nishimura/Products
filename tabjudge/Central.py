@@ -2,7 +2,6 @@ from .Process import Process
 import configparser
 import numpy as np
 import time
-from PIL import Image
 
 class Central():
 
@@ -60,16 +59,16 @@ class Central():
             contoursY = result.ContoursY
             CandidateList = result.ScoreList
     
-            array_gbr = result.CropppedDrugImage.copy()
-            array_rgb = result.CropppedDrugImage.copy()
-            array_rgb[:, :, 0], array_rgb[:, :, 2] = array_gbr[:, :, 2], array_gbr[:, :, 0]
-            CropImage = Image.fromarray(array_rgb)
+            array_bgr = result.CropppedDrugImage.copy()
+            #array_rgb = result.CropppedDrugImage.copy()
+            #array_rgb[:, :, 0], array_rgb[:, :, 2] = array_gbr[:, :, 2], array_gbr[:, :, 0]
+            #CropImage = Image.fromarray(array_rgb)
     
             drogpoints = [[x,y] for x,y in zip(contoursX, contoursY)]
             Contours = np.array(drogpoints)
             cbLogWrite('[Identifier]-[Identifier_Proc] Identifier end ' + str(i))
             cbLogWrite('[Identifier]-[Identifier_Proc] ' + str(time.time() - tIdent) + ' [s]')
-            cbSendResult(Contours, CandidateList, CropImage)
+            cbSendResult(Contours, CandidateList, array_bgr)
             del result
         cbSendCompleted()
         del IdnetifierObj
