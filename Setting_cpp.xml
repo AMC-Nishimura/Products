@@ -10,8 +10,8 @@
   <!-- ANALYZE_AREA_PARAM -->
   <dResizeRate>0.6</dResizeRate>
   <nMinContourArea>3000</nMinContourArea>
-  <dMMPerPixel>0.0547</dMMPerPixel>
-  <dLocalMMPerPixel>0.1094</dLocalMMPerPixel>
+  <dMMPerPixel>0.0475</dMMPerPixel>
+  <dLocalMMPerPixel>0.095</dLocalMMPerPixel>
   <nBilateralParam1>3</nBilateralParam1>
   <nBilateralParam2>5</nBilateralParam2>
   <nCapsuleBilateralParam1>7</nCapsuleBilateralParam1>
@@ -24,20 +24,21 @@
   <nGradientParam2>7</nGradientParam2>
   <nPrintBlackhatParam>11</nPrintBlackhatParam>
   <nPrintTophatParam>11</nPrintTophatParam>
-  <nCheckStampThreshold>20</nCheckStampThreshold>
-  <nCheckStampMinSize>40</nCheckStampMinSize>
-  <nCheckPrintThreshold>20</nCheckPrintThreshold>
-  <nCheckPrintMinSize>40</nCheckPrintMinSize>
-  <nCheckCapsulePrintThreshold>20</nCheckCapsulePrintThreshold>
-  <nCheckCapsulePrintMinSize>40</nCheckCapsulePrintMinSize>
+  <nCheckStampThreshold>10</nCheckStampThreshold>
+  <nCheckStampMinSize>20</nCheckStampMinSize>
+  <nCheckPrintThreshold>15</nCheckPrintThreshold>
+  <nCheckPrintMinSize>30</nCheckPrintMinSize>
+  <nCheckCapsulePrintThreshold>10</nCheckCapsulePrintThreshold>
+  <nCheckCapsulePrintMinSize>20</nCheckCapsulePrintMinSize>
   <nStampGaussianParam>5</nStampGaussianParam>
   <nMaxPartsCount>100</nMaxPartsCount>
   <dCheckCircleMinCircleLevel>0.65</dCheckCircleMinCircleLevel>
-  <dCheckCircleAspectRatio>1.1</dCheckCircleAspectRatio>
+  <dCheckCircleAspectRatio>1.2</dCheckCircleAspectRatio>
   <nCheckCircleSmoothParam>7</nCheckCircleSmoothParam>
   <dStampPrintStrengthRate>0.6</dStampPrintStrengthRate>
   
   <!-- MATCHING_PARAM -->
+  <iCandidateCount>10</iCandidateCount>
   <dInferThreshold_1>0.3</dInferThreshold_1>
   <dInferThreshold_2>0.7</dInferThreshold_2>
 </Setting_cpp>
