@@ -40,13 +40,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'tabjudge.apps.TabjudgeConfig',
+    'channels',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -69,6 +70,18 @@ TEMPLATES = [
         },
     },
 ]
+
+#Django-channels使用時に必ず必要。asgi.pyを読む(ここにWebSocketのルーティング設定が書かれてある。)
+ASGI_APPLICATION = 'Products.asgi.application'
+#開発中はRedisサーバーを建てる必要はない
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
+
+
 
 WSGI_APPLICATION = 'Products.wsgi.application'
 
