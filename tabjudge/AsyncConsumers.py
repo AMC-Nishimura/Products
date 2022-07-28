@@ -2,6 +2,7 @@
 import datetime
 import io
 import json
+from logging import exception
 import os
 import sys
 import threading
@@ -13,8 +14,7 @@ import asyncio
 
 import cv2
 import numpy as np
-from channels.generic.websocket import (AsyncWebsocketConsumer,
-                                        WebsocketConsumer)
+from channels.generic.websocket import (AsyncWebsocketConsumer)
 from django.apps import apps as django_apps
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -30,7 +30,7 @@ from tabjudge.WsReturnData import WsReturnData
 from tabjudge.ReturnDataEncoder import ReturnDataEncoder
 from tabjudge.TabletData import TabletData
 
-from asgiref.sync import sync_to_async
+
 
 from .models import Image
 from .serializer import ImageSerializer
@@ -42,15 +42,14 @@ from PIL import Image
 """
 WebsocketConsumer
 """
-class UploadConsumer(WebsocketConsumer):
+class UploadConsumer(AsyncWebsocketConsumer):
     
     rList = []
     lock = threading.Lock()
 
 
-    def connect(self):
+    async def connect(self):
         print("[connect] upgrade receive")
-        
         self.rList = []
         self.st = datetime.datetime.today()
         self.rList.append('Connect Time = ' + self.st.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3] + '\n')
@@ -62,34 +61,34 @@ class UploadConsumer(WebsocketConsumer):
         print('seed = ', str(self.scope['session']['seed']))
         
         # Websocketを受け取り、経路を作る
-        self.accept()
+        await self.accept()
         
-        #dj = { 'message': 'msg' }
-        #await self.send(text_data=json.dumps(dj))
+        dj = { 'message': 'msg' }
+        await self.send(text_data=json.dumps(dj))
         
-        #self.SendData(json.dumps(dj))
+        #await self.SendData(json.dumps(dj))
         
         
 
 
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
         pass
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         # チャットの投稿を受け取り、それを返却する。
         print("text_data=" , text_data)
         message = text_data
         #text_data_json  = json.loads(text_data)
         #message         = text_data_json['message']
 
-        self.send(text_data=json.dumps({ 'message': "Anonymous > " + message }))
+        await self.send(text_data=json.dumps({ 'message': "Anonymous > " + message }))
         #self.send(text_data=json.dumps({ 'message': "検閲済み" }))
         
 
     """
     Image Receive
     """
-    def receive(self, text_data=None, bytes_data=None):
+    async def receive(self, text_data=None, bytes_data=None):
         #send example 
         #inst = io.BytesIO(bytes_data)
         #img = Image.open(inst)
@@ -99,11 +98,14 @@ class UploadConsumer(WebsocketConsumer):
         print('seed = ', str(self.scope['session']['seed']))
 
         self.st = datetime.datetime.today()
-        print("start time set")
         self.rList.append('Receive Complete Time = ' + self.st.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3] + '\n')
 
         #print(vars(self))
 
+        self.st = datetime.datetime.today()
+        print("start time set")
+        nparr = np.fromstring(bytes_data, np.uint8)
+        print("bytes_data to numpy array complete")
 
         # #create session id
         # if not request.session.session_key:
@@ -118,34 +120,20 @@ class UploadConsumer(WebsocketConsumer):
         self.sessionId = self.scope['session']['seed']
         #rList sessionID set
         self.rList.append('SessionID = ' + str(self.sessionId) + '\n')
-        
-        #self.send(text_data=json.dumps({ 'identifier': 'identifier start' }))
+                
+        self.rList.append('doIdentifier Start Time = ' + self.st.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3] + '\n')
+
+        await self.send(text_data=json.dumps({ 'image_size': 'identifier start' }))
 
         #identifier start
-        #self.doIdentifier(self.sessionId, bytes_data)
-        try:
-            # print('loop init')
-            loop = asyncio.new_event_loop()
-            # print('loop set event')
-            asyncio.set_event_loop(loop)
-            # print('loop run start')
-            loop.run_in_executor(None, self.doIdentifier, self.sessionId, bytes_data)
-            
-            print('doIdentifier start')
-            #sync_to_async(self.doIdentifier,thread_sensitive=True)(self.sessionId, bytes_data)
-
-            #self.doIdentifier(self.sessionId, bytes_data)
-            print('doIdentifier end')
-            
-        except Exception as e:
-            print(e)
+        self.doIdentifier(self.sessionId, nparr)
 
         #print("return")
-        #ret = self.send(text_data=json.dumps({ 'identifier': 'identifier end' }))
+        await self.send(text_data=json.dumps({ 'image_size': 'identifier end' }))
 
-        print('receive end')
-        
-        #return super().receive(text_data, bytes_data)
+        return super().receive(text_data, bytes_data)
+
+
 
 
     def get_h_m_s(td):
@@ -155,32 +143,24 @@ class UploadConsumer(WebsocketConsumer):
 
 
         #central.py do identifier
-    def doIdentifier(self, sessionId, bytes_data):
-        def thread_identifier():
-            print("doIdentifier() sessionId = " , sessionId)
+    def doIdentifier(self, sessionId, nparr):
+        print("doIdentifier() sessionId = " , sessionId)
+        app = django_apps.get_app_config('tabjudge')
+
+        print("cv2 imdecode start")
+        try:
+            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            print("cv2 imdecode complete")
             
-            try:
-                #self.rList.append('Image decode Start Time = ' + self.st.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3] + '\n')
-                
-                print("cv2 imdecode start")
-                img = cv2.imdecode(np.fromstring(bytes_data, np.uint8), cv2.IMREAD_COLOR)
-                print("cv2 imdecode complete")
-                #self.rList.append('Image decode End Time = ' + self.st.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3] + '\n')
-                
-                print("Central Identifier Start")
-                app = django_apps.get_app_config('tabjudge')
-                app.Manager.Identifier(sessionId,
-                                        img,
-                                        self.CallBackSendResult,
-                                        self.CallBackSendCompleted,
-                                        self.LogWrite)
-            except Exception as e:
-                print(e)
+            print("Central Identifier Start")
+            app.Manager.Identifier(sessionId,
+                                    img,
+                                    self.CallBackSendResult,
+                                    self.CallBackSendCompleted,
+                                    self.LogWrite)
+        except Exception as e:
+            print(e)
 
-        thread_identifier()
-
-        #thread = threading.Thread(target=thread_identifier)
-        #thread.start()
 
     """
     
@@ -191,18 +171,12 @@ class UploadConsumer(WebsocketConsumer):
         app = django_apps.get_app_config('tabjudge')
         #CentralManager.py Complete()
         app.Manager.Complete(sessionId)
-
+        
         #self.request.session.delete(sessionId)
+        print("completeIdentifier finish")
+        
+        self.send("Complete")
 
-        prms = {'indent':4,'ensure_ascii': False}
-        msg = ('\n'.join(self.rList) )
-        rtData = WsReturnData(1, None, msg)
-
-        print("complete set data")
-        print("send to ...")
-
-        self.SendData(json.dumps(rtData, cls = ReturnDataEncoder, **prms))
-        print("completeIdentifier end")
 
         #コールバックさせる関数：結果セット関数
     def CallBackSendResult(self,
@@ -236,8 +210,8 @@ class UploadConsumer(WebsocketConsumer):
         #lock release
         self.lock.release()
 
-
-        pointList = []
+        
+        pointList = []  
         ContoursCount = len(Contours)
         for num in range(ContoursCount):
             pt = Point(Contours[num, 0], Contours[num, 1])
@@ -247,41 +221,52 @@ class UploadConsumer(WebsocketConsumer):
         listcount = len(CandidateList)
         for i in range(listcount):
             cd = Candidate(CandidateList[i].YJCODE,
-                            CandidateList[i].FCODE,
-                            str(CandidateList[i].NAME),
-                            CandidateList[i].SCORE)
+                           CandidateList[i].FCODE,
+                           str(CandidateList[i].NAME),
+                           CandidateList[i].SCORE)
             candiList.append(cd)
-
+        
         imgArray = np.array(CropImage)
         td = TabletData(pointList, candiList, imgArray)
-
+        
         #self.recvTabDatas.append(td)
         print("data set")
         prms = {'indent':4,'ensure_ascii': False}
-        rtData = WsReturnData(0,td, '')
+        rtData = WsReturnData(tbData = td, msg ='')
 
         print("complete set data")
+        
         print("send to ...")
+        try:
+            #↓python3.7 から使える
+            #asyncio.run(self.SendData("CallBackSendResult"))
 
-        #↓python3.7 から使える
-        #asyncio.run(self.SendData("CallBackSendResult"))
+            #asyncio.ensure_future(self.SendData("CallBackSendResult"))
 
-        #asyncio.ensure_future(self.SendData("CallBackSendResult"))
+       #     loop = asyncio.get_event_loop()
+            #loop.run_until_complete(asyncio.wait(self.SendData("CallBackSendResult")))
+            
+        #    loop.run_until_complete(asyncio.wait(self.send(text_data=json.dumps(rtData, cls = ReturnDataEncoder, **prms))))
 
-        #loop = asyncio.get_event_loop()
-        #loop.run_until_complete(asyncio.wait(self.SendData("CallBackSendResult")))
-
-
-        #await self.send(text_data="CallBackSendResult")
-
-        #print(str(vars(rtData)))
-        #await self.SendData(json.dumps(rtData, cls = ReturnDataEncoder, **prms))
-
-
-        #asyncio.ensure_future(self.SendData(json.dumps(rtData, cls = ReturnDataEncoder, **prms)))
-
-        self.SendData(json.dumps(rtData, cls = ReturnDataEncoder, **prms))
-
+            #await self.send(text_data=json.dumps({ 'image_size': 'identifier start' }))
+            #await self.send(text_data="CallBackSendResult")
+            
+            #print(str(vars(rtData)))
+            #await self.SendData(json.dumps(rtData, cls = ReturnDataEncoder, **prms))
+            
+            
+            #asyncio.ensure_future(self.SendData(json.dumps(rtData, cls = ReturnDataEncoder, **prms)))
+            
+            asyncio.ensure_future(self.send(text_data=json.dumps(rtData, cls = ReturnDataEncoder, **prms)))
+            
+            #self.run_until_complete(asyncio.wait(self.send(text_data=json.dumps(rtData, cls = ReturnDataEncoder, **prms))))
+            
+            #self.send(text_data=json.dumps(rtData, cls = ReturnDataEncoder, **prms))
+            
+            #self.SendData(json.dumps(rtData, cls = ReturnDataEncoder, **prms))
+            
+        except Exception as e:
+            print(e)
         print("send completed")
         #self.send(text_data=json.dumps(rtData, cls = ReturnDataEncoder, **prms))
         #self.SendData("CallBackSendResult")
@@ -291,8 +276,11 @@ class UploadConsumer(WebsocketConsumer):
         del(CandidateList)
         del(CropImage)
 
-    def SendData(self, msg):
-        self.send(text_data=msg)
+    async def SendData(self, msg):
+        try:
+            await self.send(text_data=msg)
+        except Exception as e:
+            print(e)
         
         
     #コールバックさせる関数：ログ出力時に呼ぶ関数
@@ -319,18 +307,8 @@ class UploadConsumer(WebsocketConsumer):
         self.rList.append('日時 = '+datetime.datetime.today().strftime('%Y/%m/%d %H:%M:%S.%f')[:-3])
         self.rList.append('')
         
-        
-        self.ed = datetime.datetime.today()
-        self.rList.append('End Time = ' + self.ed.strftime('%Y/%m/%d %H:%M:%S.%f')[:-3] + '\n')
-
-        execution_time = self.ed - self.st
-        self.rList.append('\nTime Span (時:分:秒.ミリ秒) = ' + str(execution_time)[:-3])
-        self.rList.append('')
-        
         #lock
         self.lock.release()
-        
-        
         
         self.CompleteIdentifier(self.sessionId)
         
