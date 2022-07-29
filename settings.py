@@ -9,14 +9,9 @@ wsgi_app = 'Products.asgi:application'
 chdir = '/home/user/yuyama/Products'
 
 # daemon mode
-daemon = False
+daemon = True
 
-# enviroment variables
-raw_env = [
-    'ENV_TYPE=dev',
-    'HOGEHOGE_KEY=xxxxxxxxxxxxxxxxxxxxxxxxx'
-]
-
+#Timeout
 timeout = 180
 
 # Server Socket
@@ -31,7 +26,6 @@ worker_class = "uvicorn.workers.UvicornWorker"
 
 threads = 4
 
-
 #  Logging
 #========================================
 # access log
@@ -39,5 +33,5 @@ accesslog = 'access.log'
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
 
 # gunicorn log
-errorlog = '-'
+errorlog = 'error.log'
 loglevel = 'info'
